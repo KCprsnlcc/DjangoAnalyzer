@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results</title>
+    <link rel="stylesheet" href="/static/analyzer/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Analysis Results</h1>
+        <p>Input Text: {{ text }}</p>
+        <ul>
+            {% for result in results %}
+                <li>{{ result.label }}: {{ result.score|floatformat:2 }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'home' %}">Analyze another text</a>
+    </div>
+</body>
+</html>

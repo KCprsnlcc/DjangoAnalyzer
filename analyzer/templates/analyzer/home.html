@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Emotion Analyzer</title>
+    <link rel="stylesheet" href="/static/analyzer/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Text Emotion Analyzer</h1>
+        <form action="{% url 'analyze' %}" method="post">
+            {% csrf_token %}
+            <textarea name="text" rows="4" cols="50" placeholder="Enter text here..."></textarea><br>
+            <button type="submit">Analyze Emotion</button>
+        </form>
+    </div>
+</body>
+</html>
