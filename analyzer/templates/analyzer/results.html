@@ -1,21 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis Results</title>
-    <link rel="stylesheet" href="/static/analyzer/css/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Analysis Results</h1>
-        <p>Input Text: {{ text }}</p>
-        <ul>
-            {% for result in results %}
-                <li>{{ result.label }}: {{ result.score|floatformat:2 }}</li>
-            {% endfor %}
-        </ul>
-        <a href="{% url 'home' %}">Analyze another text</a>
+{% extends 'analyzer/base.html' %}
+{% block title %}Results{% endblock %}
+{% block content %}
+    <div class="card mt-4">
+        <div class="card-header">
+            Analysis Results
+        </div>
+        <div class="card-body">
+            <p><strong>Input Text:</strong> {{ text }}</p>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Anger
+                    <span class="badge badge-primary badge-pill">{{ emotion_scores.anger|floatformat:2 }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Disgust
+                    <span class="badge badge-primary badge-pill">{{ emotion_scores.disgust|floatformat:2 }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Fear
+                    <span class="badge badge-primary badge-pill">{{ emotion_scores.fear|floatformat:2 }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Joy
+                    <span class="badge badge-primary badge-pill">{{ emotion_scores.joy|floatformat:2 }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Neutral
+                    <span class="badge badge-primary badge-pill">{{ emotion_scores.neutral|floatformat:2 }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Sadness
+                    <span class="badge badge-primary badge-pill">{{ emotion_scores.sadness|floatformat:2 }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Surprise
+                    <span class="badge badge-primary badge-pill">{{ emotion_scores.surprise|floatformat:2 }}</span>
+                </li>
+            </ul>
+            <a href="{% url 'home' %}" class="btn btn-primary mt-3">Analyze another text</a>
+        </div>
     </div>
-</body>
-</html>
+{% endblock %}

@@ -20,10 +20,11 @@ body {
 
 h1 {
     margin-bottom: 20px;
+    color: #0E2326; /* Text color */
 }
 
 textarea {
-    width: 100%;
+    width: 300px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -31,7 +32,7 @@ textarea {
 }
 
 button {
-    background-color: #007bff;
+    background-color: #679E4A; /* Button background color */
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -40,7 +41,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #0E2326; /* Button hover background color */
 }
 
 ul {
@@ -59,7 +60,7 @@ li {
 a {
     display: inline-block;
     margin-top: 10px;
-    color: #007bff;
+    color: #0E2326;
     text-decoration: none;
 }
 

@@ -1,0 +1,44 @@
+{% extends 'analyzer/base.html' %}
+{% load static %}
+{% block title %}Visualizations{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Emotion Analysis Visualizations</h1>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    Pie Chart
+                </div>
+                <div class="card-body">
+                    <img src="data:image/png;base64,{{ pie_chart }}" class="img-fluid" alt="Pie Chart">
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    Bar Chart
+                </div>
+                <div class="card-body">
+                    <img src="data:image/png;base64,{{ bar_chart }}" class="img-fluid" alt="Bar Chart">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    Word Cloud
+                </div>
+                <div class="card-body">
+                    <img src="data:image/png;base64,{{ word_cloud }}" class="img-fluid" alt="Word Cloud">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
