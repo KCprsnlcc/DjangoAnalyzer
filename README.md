@@ -59,7 +59,7 @@ Contributions are welcome! Please create an issue or submit a pull request for a
 
 ## Contact
 
-For any questions or inquiries, please contact [your-email@example.com](mailto:your-email@example.com).
+For any questions or inquiries, please contact [kcpersonalacc@gmail.com](mailto:kcpersonalacc@gmail.com).
 
 ---
 
