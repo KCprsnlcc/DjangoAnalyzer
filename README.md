@@ -49,10 +49,6 @@ Welcome to the Text Emotion Analyzer, a Django-based web application for analyzi
 - Ensure the pre-trained emotion detection model (`tf_model.h5`) is present in the `predictivemodel` directory.
 - Adjust the `analyzer/views.py` file to suit your specific requirements for emotion analysis.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## Contributing
 
 Contributions are welcome! Please create an issue or submit a pull request for any improvements or bug fixes.
