@@ -1,5 +1,8 @@
 # views.py
-
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib import messages
 from django.shortcuts import render
 from .models import EmotionAnalysis
 import matplotlib.pyplot as plt
@@ -12,6 +15,50 @@ from django.conf import settings
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
+
+def home(request):
+    return render(request, 'analyzer/home.html')
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        print(f"Attempting login for user: {username}")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            print("Login successful")
+            messages.success(request, 'Successfully logged in!')
+            return redirect('home')
+        else:
+            print("Login failed: invalid username or password")
+            messages.error(request, 'Invalid username or password')
+            return redirect('home')
+    return redirect('home')
+
+def user_register(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+            return redirect('home')
+        elif User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists')
+            return redirect('home')
+        else:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()
+            messages.success(request, 'Registration successful! You can now log in.')
+            return redirect('home')
+    return render(request, 'analyzer/home.html')
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, 'Successfully logged out!')
+    return redirect('home')
+
 
 # Assuming the model files are directly in the 'predictivemodel' directory
 model_path = 'predictivemodel'

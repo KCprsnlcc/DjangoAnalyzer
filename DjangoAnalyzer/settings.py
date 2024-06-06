@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+]
 
 # Application definition
 
@@ -128,8 +131,9 @@ STATICFILES_DIRS = [
 ]
 
 
-
-
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 3600  # Session lasts for 1 hour
+SESSION_SAVE_EVERY_REQUEST = True  # Save the session to the database on every request
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
