@@ -16,7 +16,10 @@ import numpy as np
 import matplotlib
 import torch
 from transformers import RobertaForSequenceClassification, RobertaTokenizer
-
+import plotly.express as px
+import pandas as pd
+import json
+import plotly
 
 matplotlib.use('Agg')
 
@@ -73,6 +76,22 @@ model.eval()
 
 def home(request):
     return render(request, 'analyzer/home.html')
+
+def generate_radar_chart(data):
+    categories = list(data.keys())
+    values = list(data.values())
+
+    # Create a DataFrame for Plotly
+    df = pd.DataFrame(dict(
+        r=values,
+        theta=categories
+    ))
+
+    fig = px.line_polar(df, r='r', theta='theta', line_close=True)
+    fig.update_traces(fill='toself')
+    radar_chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return radar_chart_json
+
 
 def analyze(request):
     if request.method == 'POST':
@@ -146,6 +165,8 @@ def generate_word_cloud(text):
 
 def visualizations(request):
     analyses = EmotionAnalysis.objects.all()
+    
+    # Initialize emotion_data and text_data
     emotion_data = {
         'anger': 0.0,
         'disgust': 0.0,
@@ -156,6 +177,8 @@ def visualizations(request):
         'surprise': 0.0
     }
     text_data = ""
+    
+    # Populate emotion_data and text_data
     for analysis in analyses:
         emotion_data['anger'] += analysis.anger
         emotion_data['disgust'] += analysis.disgust
@@ -165,23 +188,125 @@ def visualizations(request):
         emotion_data['sadness'] += analysis.sadness
         emotion_data['surprise'] += analysis.surprise
         text_data += analysis.text + " "
-
+    
     # Replace NaN values with 0.0
     for emotion, score in emotion_data.items():
         if np.isnan(score):
             emotion_data[emotion] = 0.0
-
+    
+    # Generate visualizations using the now-defined variables
     pie_chart = generate_pie_chart(emotion_data)
     bar_chart = generate_bar_chart(emotion_data)
-
+    radar_chart = generate_radar_chart(emotion_data)
+    time_series_chart = generate_time_series_chart()
+    heatmap = generate_heatmap()
+    word_cloud_interactive = generate_interactive_word_cloud(text_data)
+    histogram = generate_histogram()
+    sentiment_map = generate_sentiment_map()
+    bubble_chart = generate_bubble_chart()
+    
     # Check if text_data is empty before generating word cloud
-    if text_data:
+    if text_data.strip():
         word_cloud = generate_word_cloud(text_data)
     else:
         word_cloud = None
-
+    
     return render(request, 'analyzer/visualizations.html', {
         'pie_chart': pie_chart,
         'bar_chart': bar_chart,
-        'word_cloud': word_cloud
+        'radar_chart': radar_chart,
+        'time_series_chart': time_series_chart,
+        'heatmap': heatmap,
+        'word_cloud': word_cloud,
+        'word_cloud_interactive': word_cloud_interactive,
+        'histogram': histogram,
+        'sentiment_map': sentiment_map,
+        'bubble_chart': bubble_chart
     })
+
+    
+def generate_sentiment_map():
+    analyses = EmotionAnalysis.objects.all()  # Removed the latitude and longitude filter
+
+    data = {
+        'joy': [analysis.joy for analysis in analyses],
+        'text': [analysis.text for analysis in analyses],
+    }
+
+    # Since you no longer have latitude/longitude, you need to adapt how you display the data
+    df = pd.DataFrame(data)
+    fig = px.scatter(df, x='text', y='joy', size='joy', hover_name='text')
+    sentiment_map_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return sentiment_map_json
+
+def generate_bubble_chart():
+    analyses = EmotionAnalysis.objects.all()
+    data = {
+        'text_length': [len(analysis.text) for analysis in analyses],
+        'joy': [analysis.joy for analysis in analyses],
+        'anger': [analysis.anger for analysis in analyses],
+    }
+    df = pd.DataFrame(data)
+    fig = px.scatter(df, x='text_length', y='joy', size='anger', color='anger',
+                     title='Joy vs Text Length with Anger as Size')
+    bubble_chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return bubble_chart_json
+
+    
+def generate_histogram():
+    analyses = EmotionAnalysis.objects.all()
+    emotions = ['anger', 'disgust', 'fear', 'joy', 'neutral', 'sadness', 'surprise']
+    data = {emotion: [getattr(analysis, emotion) for analysis in analyses] for emotion in emotions}
+    df = pd.DataFrame(data)
+    fig = px.histogram(df, x=emotions, barmode='overlay', histnorm='percent', title='Sentiment Distribution')
+    histogram_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return histogram_json
+
+    
+def generate_interactive_word_cloud(text):
+    wordcloud = WordCloud(width=800, height=400).generate(text)
+    word_freq = wordcloud.words_
+
+    # Prepare data for Plotly
+    data = {
+        'text': list(word_freq.keys()),
+        'size': [freq * 100 for freq in word_freq.values()]
+    }
+    df = pd.DataFrame(data)
+    fig = px.scatter(df, x='text', y='size', size='size', hover_name='text', size_max=60)
+    word_cloud_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return word_cloud_json
+
+def generate_time_series_chart():
+    analyses = EmotionAnalysis.objects.all().order_by('created_at')
+    data = {
+        'created_at': [analysis.created_at for analysis in analyses],
+        'anger': [analysis.anger for analysis in analyses],
+        'disgust': [analysis.disgust for analysis in analyses],
+        'fear': [analysis.fear for analysis in analyses],
+        'joy': [analysis.joy for analysis in analyses],
+        'neutral': [analysis.neutral for analysis in analyses],
+        'sadness': [analysis.sadness for analysis in analyses],
+        'surprise': [analysis.surprise for analysis in analyses],
+    }
+    df = pd.DataFrame(data)
+    fig = px.line(df, x='created_at', y=df.columns[1:], title='Emotions Over Time')
+    time_series_chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return time_series_chart_json
+
+def generate_heatmap():
+    analyses = EmotionAnalysis.objects.all()
+    data = {
+        'anger': [analysis.anger for analysis in analyses],
+        'disgust': [analysis.disgust for analysis in analyses],
+        'fear': [analysis.fear for analysis in analyses],
+        'joy': [analysis.joy for analysis in analyses],
+        'neutral': [analysis.neutral for analysis in analyses],
+        'sadness': [analysis.sadness for analysis in analyses],
+        'surprise': [analysis.surprise for analysis in analyses],
+    }
+    df = pd.DataFrame(data)
+    corr = df.corr()
+    fig = px.imshow(corr, text_auto=True, title='Correlation Heatmap')
+    heatmap_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return heatmap_json
