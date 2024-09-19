@@ -14,6 +14,10 @@ import os
 from django.conf import settings
 import numpy as np
 import matplotlib
+import torch
+from transformers import RobertaForSequenceClassification, RobertaTokenizer
+
+
 matplotlib.use('Agg')
 
 def home(request):
@@ -62,8 +66,10 @@ def user_logout(request):
 
 # Assuming the model files are directly in the 'predictivemodel' directory
 model_path = 'predictivemodel'
-
+model = RobertaForSequenceClassification.from_pretrained(model_path)
 emotion_analyzer = pipeline('text-classification', model=model_path, tokenizer=model_path)
+tokenizer = RobertaTokenizer.from_pretrained(model_path)
+model.eval()
 
 def home(request):
     return render(request, 'analyzer/home.html')
@@ -71,40 +77,30 @@ def home(request):
 def analyze(request):
     if request.method == 'POST':
         text = request.POST['text']
-        results = emotion_analyzer(text)
+        inputs = tokenizer(text, return_tensors="pt")
+        outputs = model(**inputs)
+        logits = outputs.logits
+        probabilities = torch.softmax(logits, dim=1)
+        probs = probabilities.detach().numpy()[0]
 
-        # Initialize a dictionary to store scores for each emotion
-        emotion_scores = {
-            'anger': 0.0,
-            'disgust': 0.0,
-            'fear': 0.0,
-            'joy': 0.0,
-            'neutral': 0.0,
-            'sadness': 0.0,
-            'surprise': 0.0
-        }
-
-        # Collect the scores for each emotion
-        for result in results:
-            emotion = result['label'].lower()
-            score = result['score']
-            if emotion in emotion_scores:
-                emotion_scores[emotion] += score
+        # Map the probabilities to the emotion labels
+        labels = [model.config.id2label[i] for i in range(model.config.num_labels)]
+        emotion_scores = dict(zip(labels, probs))
 
         # Save to the database
         EmotionAnalysis.objects.create(
             text=text,
-            anger=emotion_scores['anger'],
-            disgust=emotion_scores['disgust'],
-            fear=emotion_scores['fear'],
-            joy=emotion_scores['joy'],
-            neutral=emotion_scores['neutral'],
-            sadness=emotion_scores['sadness'],
-            surprise=emotion_scores['surprise']
+            anger=emotion_scores.get('anger', 0.0),
+            disgust=emotion_scores.get('disgust', 0.0),
+            fear=emotion_scores.get('fear', 0.0),
+            joy=emotion_scores.get('joy', 0.0),
+            neutral=emotion_scores.get('neutral', 0.0),
+            sadness=emotion_scores.get('sadness', 0.0),
+            surprise=emotion_scores.get('surprise', 0.0)
         )
 
         return render(request, 'analyzer/results.html', {'emotion_scores': emotion_scores, 'text': text})
-    return render(request, 'analyzer/home.html')
+    return render(request, 'analyzer/home.html')    
 
 
 
